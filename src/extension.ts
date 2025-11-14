@@ -1,26 +1,67 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as net from 'net';
+import { workspace, ExtensionContext } from 'vscode';
+import {
+  LanguageClient,
+  LanguageClientOptions,
+  ServerOptions,
+  StreamInfo
+} from 'vscode-languageclient/node';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+let client: LanguageClient;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "theia-lsp" is now active!');
+export function activate(context: ExtensionContext) {
+  console.log('Rust LSP Connector (TCP) is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('theia-lsp.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Theia-LSP!');
-	});
+  const serverOptions: ServerOptions = () => {
+    return new Promise((resolve, reject) => {
+      // Wir konfigurieren Host und Port für den externen LS
+      const host = 'language-server'; // Der Name des LS-Containers
+      const port = 5555;
 
-	context.subscriptions.push(disposable);
+      console.log(`Attempting to connect to Rust Language Server at ${host}:${port}`);
+
+      try {
+        const socket = net.connect({ host: host, port: port });
+
+        socket.on('connect', () => {
+          console.log("Successfully connected to the Rust Language Server.");
+          const result: StreamInfo = {
+            reader: socket,
+            writer: socket,
+          };
+          resolve(result);
+        });
+
+        socket.on('error', (err) => {
+          console.error(`Failed to connect to language server: ${err.message}`);
+          reject(err);
+        });
+
+      } catch (e) {
+        console.error(`Caught exception during connection attempt: ${e}`);
+        reject(e);
+      }
+    });
+  };
+
+  const clientOptions: LanguageClientOptions = {
+    documentSelector: [{ scheme: 'file', language: 'rust' }],
+  };
+
+  client = new LanguageClient(
+    'rustLspConnector',
+    'External Rust Language Server (TCP)',
+    serverOptions,
+    clientOptions
+  );
+
+  console.log('Starting the language client...');
+  client.start();
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate(): Thenable<void> | undefined {
+  if (!client) {
+    return undefined;
+  }
+  return client.stop();
+}

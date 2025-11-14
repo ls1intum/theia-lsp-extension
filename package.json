@@ -2,14 +2,21 @@
   "name": "theia-lsp",
   "displayName": "Theia-LSP",
   "description": "Connects to an external Java Language Server.",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "publisher": "nikolashack", 
   "engines": {
     "vscode": "^1.105.0"
+  },
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/ls1intum/theia-lsp-extension"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -28,13 +35,16 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.105.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.46.3",
+    "@types/vscode": "^1.105.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
   }
 }
