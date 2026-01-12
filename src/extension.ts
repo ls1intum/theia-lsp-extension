@@ -27,7 +27,7 @@ const languageServerConfigs = {
 
 // Diese Funktion wird EINMAL aufgerufen, wenn die Extension aktiviert wird.
 export function activate(context: ExtensionContext) {
-  console.log('Lazy Multi-Language LSP Connector is now active!');
+  console.log('[LSSERVICE] Lazy Multi-Language LSP Connector is now active!');
 
   // Diese Funktion wird für JEDES geöffnete Dokument aufgerufen.
   function ensureLanguageClient(document: TextDocument): void {
@@ -35,20 +35,23 @@ export function activate(context: ExtensionContext) {
     
     // Prüfen, ob wir diese Sprache unterstützen UND ob der Client dafür noch NICHT läuft.
     if (languageServerConfigs[langId] && !clients.has(langId)) {
+      console.log(`[LSSERVICE] Language is supported and client is not running`);
       const config = languageServerConfigs[langId];
-
       // Lese Host und Port aus den Umgebungsvariablen, mit Fallback auf die Defaults.
       // Das macht es für Docker Compose und Kubernetes flexibel.
       const host = process.env[config.hostEnv] || config.defaultHost;
       const port = parseInt(process.env[config.portEnv] || `${config.defaultPort}`, 10);
       
-      console.log(`First file for '${langId}' opened. Starting client to connect to ${host}:${port}`);
+      console.log(`[LSSERVICE] First file for '${langId}' opened. Starting client to connect to ${host}:${port}`);
       
       const serverOptions: ServerOptions = () => {
         return new Promise((resolve, reject) => {
           const socket = net.connect({ host, port });
-          socket.on('connect', () => resolve({ reader: socket, writer: socket }));
-          socket.on('error', (err) => reject(`Socket error for ${langId} LS: ${err.message}`));
+          socket.on('connect', () => {
+            console.log(`[LSSERVICE] Successfully connected to ${langId} LS at ${host}:${port}`);
+            resolve({ reader: socket, writer: socket });
+          });
+          socket.on('error', (err) => reject(`[LSSERVICE] Socket error for ${langId} LS: ${err.message}`));
         });
       };
 

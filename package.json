@@ -2,7 +2,7 @@
   "name": "theia-lsp",
   "displayName": "Theia-LSP",
   "description": "Connects to an external Java Language Server.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "nikolashack", 
   "engines": {
     "vscode": "^1.105.0"
