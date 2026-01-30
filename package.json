@@ -1,8 +1,8 @@
 {
   "name": "theia-lsp",
   "displayName": "Theia-LSP",
-  "description": "Connects to an external Java Language Server.",
-  "version": "0.0.5",
+  "description": "Connects to external Language Servers (Java, Rust) via TCP.",
+  "version": "0.0.6",
   "publisher": "nikolashack", 
   "engines": {
     "vscode": "^1.105.0"
